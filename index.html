@@ -17,15 +17,35 @@ body {
   margin: auto;
   padding: 15px;
 }
-.header {
-  text-align: center;
-  margin-bottom: 20px;
+
+/* HEADER */
+.header-bar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
 }
 .header h1 {
   margin: 0;
   font-size: 28px;
   color: #38bdf8;
 }
+.note {
+  font-size: 13px;
+  opacity: 0.8;
+}
+.admin-link{
+  background:#dc2626;
+  color:white;
+  padding:6px 16px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:bold;
+  text-decoration:none;
+}
+.admin-link:hover{opacity:.85}
+
+/* CARD */
 .card {
   background: #020617;
   padding: 20px;
@@ -33,6 +53,8 @@ body {
   margin-bottom: 25px;
   box-shadow: 0 10px 25px rgba(0,0,0,0.4);
 }
+
+/* FORM */
 input, button {
   width: 100%;
   padding: 10px;
@@ -49,6 +71,8 @@ button {
 button:hover {
   background: #1d4ed8;
 }
+
+/* TABLE */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -72,10 +96,8 @@ th {
   border-radius: 6px;
   padding: 5px 10px;
 }
-.note {
-  font-size: 13px;
-  opacity: 0.8;
-}
+
+/* FOOTER */
 .footer {
   text-align: center;
   font-size: 12px;
@@ -90,27 +112,30 @@ th {
 <div class="container">
 
   <!-- HEADER -->
-  <div class="header">
-    <h1>🏪 TP HUB STORE STOK</h1>
-    <p class="note">Input angka saja • 1 = 1M</p>
+  <div class="header-bar">
+    <div class="header">
+      <h1>🏪 TP HUB STORE STOK</h1>
+      <p class="note">Input angka saja • 1 = 1M</p>
+    </div>
+    <a href="admin.html" class="admin-link">ADMIN</a>
   </div>
 
   <!-- PANDUAN -->
-  <div class="card">
+    <div class="card">
     <h3>📘 Panduan Singkat</h3>
     <ul style="line-height:1.7;padding-left:18px;">
       <li><b>1 = 1M (1 juta)</b> → isi angka saja</li>
-      <li>Gunakan <b>Nama / Nick ROK yang sama</b> setiap update</li>
+      <li>Gunakan <b>Nama </b> setiap update</li>
       <li>Klik <b>Simpan Stok</b> untuk menambah / update</li>
       <li>Stok otomatis masuk ke <b>TOTAL</b></li>
-      <li>Gunakan tombol <b>Hapus</b> hanya untuk stok sendiri</li>
+      <li>Gunakan tombol <b>Hapus</b> hanya untuk stok sendiri hapus stok lama untuk update stok baru</li>
     </ul>
     <p class="note">
-      ⚠️ Gunakan halaman ini dengan jujur demi kepentingan aliansi.
+      ⚠️ Gunakan halaman ini dengan jujur demi kepentingan bersama
     </p>
   </div>
 
-  <!-- FORM INPUT -->
+  <!-- FORM -->
   <div class="card">
     <h3>➕ Input Stok SDA</h3>
     <form id="form">
@@ -124,7 +149,7 @@ th {
     <p id="status"></p>
   </div>
 
-  <!-- TABEL STOK -->
+  <!-- TABEL -->
   <div class="card">
     <h3>📊 Stok SDA Tersedia</h3>
     <table>
@@ -152,73 +177,59 @@ th {
     </table>
   </div>
 
-  <div class="footer">
-    © TP HUB STORE STOK
-  </div>
+  <div class="footer">© TP HUB STORE STOK</div>
 
 </div>
 
 <script>
 const url = "https://script.google.com/macros/s/AKfycbxsT7TzxPmqgi-fe8iT8HJQG8v2Vgsti0KuVZLD6t5kRx82-Nv-mOUd5McPgzBMvYlj/exec";
 
-document.getElementById("form").onsubmit = e => {
+form.onsubmit = e => {
   e.preventDefault();
-
-  fetch(url, {
-    method: "POST",
-    body: JSON.stringify({
-      nama: nama.value,
-      food: food.value || 0,
-      wood: wood.value || 0,
-      stone: stone.value || 0,
-      gold: gold.value || 0
+  fetch(url,{
+    method:"POST",
+    body:JSON.stringify({
+      nama:nama.value,
+      food:food.value||0,
+      wood:wood.value||0,
+      stone:stone.value||0,
+      gold:gold.value||0
     })
-  }).then(() => {
-    status.innerText = "✅ Stok berhasil disimpan";
+  }).then(()=>{
+    status.innerText="✅ Stok berhasil disimpan";
     form.reset();
     loadData();
   });
 };
 
-function hapus(nama) {
-  if (!confirm("Hapus stok " + nama + "?")) return;
-
-  fetch(url, {
-    method: "POST",
-    body: JSON.stringify({
-      action: "delete",
-      nama: nama
-    })
-  }).then(() => loadData());
+function hapus(n){
+  if(!confirm("Hapus stok "+n+"?")) return;
+  fetch(url,{
+    method:"POST",
+    body:JSON.stringify({action:"delete",nama:n})
+  }).then(loadData);
 }
 
-function loadData() {
-  fetch(url)
-    .then(r => r.json())
-    .then(d => {
-      let html = "";
-      d.list.forEach(r => {
-        html += `
-        <tr>
-          <td>${r.nama}</td>
-          <td>${r.food}M</td>
-          <td>${r.wood}M</td>
-          <td>${r.stone}M</td>
-          <td>${r.gold}M</td>
-          <td>
-            <button class="delete-btn" onclick="hapus('${r.nama}')">Hapus</button>
-          </td>
-        </tr>`;
-      });
-      data.innerHTML = html;
-
-      tFood.innerText  = d.total.food  + "M";
-      tWood.innerText  = d.total.wood  + "M";
-      tStone.innerText = d.total.stone + "M";
-      tGold.innerText  = d.total.gold  + "M";
+function loadData(){
+  fetch(url).then(r=>r.json()).then(d=>{
+    let h="";
+    d.list.forEach(r=>{
+      h+=`<tr>
+        <td>${r.nama}</td>
+        <td>${r.food}M</td>
+        <td>${r.wood}M</td>
+        <td>${r.stone}M</td>
+        <td>${r.gold}M</td>
+        <td><button class="delete-btn" onclick="hapus('${r.nama}')">Hapus</button></td>
+      </tr>`;
     });
+    data.innerHTML=h;
+    tFood.innerText=d.total.food+"M";
+    tWood.innerText=d.total.wood+"M";
+    tStone.innerText=d.total.stone+"M";
+    tGold.innerText=d.total.gold+"M";
+  });
 }
-
 loadData();
 </script>
 
